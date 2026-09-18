@@ -1,4 +1,30 @@
 {
+  "currencies": [
+    {
+      "ticker": "TWD=X",
+      "name": "US Dollar / Taiwan Dollar",
+      "base_currency": "USD",
+      "quote_currency": "TWD"
+    },
+    {
+      "ticker": "HKD=X",
+      "name": "US Dollar / Hong Kong Dollar",
+      "base_currency": "USD",
+      "quote_currency": "HKD"
+    },
+    {
+      "ticker": "KRW=X",
+      "name": "US Dollar / South Korean Won",
+      "base_currency": "USD",
+      "quote_currency": "KRW"
+    },
+    {
+      "ticker": "INR=X",
+      "name": "US Dollar / Indian Rupee",
+      "base_currency": "USD",
+      "quote_currency": "INR"
+    }
+  ],
   "etfs": [
     {
       "ticker": "XLF",
@@ -8,66 +34,16 @@
       "sector": "Financials",
       "effective_date": "2024-01-01",
       "constituents": [
-        {
-          "ticker": "BRK-B",
-          "name": "Berkshire Hathaway Inc. Class B",
-          "weight": 0.155000,
-          "sector": "Financial Services"
-        },
-        {
-          "ticker": "JPM",
-          "name": "JPMorgan Chase & Co.",
-          "weight": 0.135000,
-          "sector": "Banks - Diversified"
-        },
-        {
-          "ticker": "V",
-          "name": "Visa Inc. Class A",
-          "weight": 0.110000,
-          "sector": "Credit Services"
-        },
-        {
-          "ticker": "MA",
-          "name": "Mastercard Incorporated Class A",
-          "weight": 0.095000,
-          "sector": "Credit Services"
-        },
-        {
-          "ticker": "BAC",
-          "name": "Bank of America Corporation",
-          "weight": 0.090000,
-          "sector": "Banks - Diversified"
-        },
-        {
-          "ticker": "WFC",
-          "name": "Wells Fargo & Company",
-          "weight": 0.085000,
-          "sector": "Banks - Diversified"
-        },
-        {
-          "ticker": "GS",
-          "name": "The Goldman Sachs Group, Inc.",
-          "weight": 0.085000,
-          "sector": "Capital Markets"
-        },
-        {
-          "ticker": "MS",
-          "name": "Morgan Stanley",
-          "weight": 0.085000,
-          "sector": "Capital Markets"
-        },
-        {
-          "ticker": "SPGI",
-          "name": "S&P Global Inc.",
-          "weight": 0.080000,
-          "sector": "Financial Data & Analytics"
-        },
-        {
-          "ticker": "PGR",
-          "name": "The Progressive Corporation",
-          "weight": 0.080000,
-          "sector": "Insurance - Property & Casualty"
-        }
+        { "ticker": "BRK-B", "name": "Berkshire Hathaway Inc. Class B", "currency": "USD", "weight": 0.155000, "sector": "Financial Services" },
+        { "ticker": "JPM", "name": "JPMorgan Chase & Co.", "currency": "USD", "weight": 0.135000, "sector": "Banks - Diversified" },
+        { "ticker": "V", "name": "Visa Inc. Class A", "currency": "USD", "weight": 0.110000, "sector": "Credit Services" },
+        { "ticker": "MA", "name": "Mastercard Incorporated Class A", "currency": "USD", "weight": 0.095000, "sector": "Credit Services" },
+        { "ticker": "BAC", "name": "Bank of America Corporation", "currency": "USD", "weight": 0.090000, "sector": "Banks - Diversified" },
+        { "ticker": "WFC", "name": "Wells Fargo & Company", "currency": "USD", "weight": 0.085000, "sector": "Banks - Diversified" },
+        { "ticker": "GS", "name": "The Goldman Sachs Group, Inc.", "currency": "USD", "weight": 0.085000, "sector": "Capital Markets" },
+        { "ticker": "MS", "name": "Morgan Stanley", "currency": "USD", "weight": 0.085000, "sector": "Capital Markets" },
+        { "ticker": "SPGI", "name": "S&P Global Inc.", "currency": "USD", "weight": 0.080000, "sector": "Financial Data & Analytics" },
+        { "ticker": "PGR", "name": "The Progressive Corporation", "currency": "USD", "weight": 0.080000, "sector": "Insurance - Property & Casualty" }
       ]
     },
     {
@@ -78,66 +54,31 @@
       "sector": "Technology",
       "effective_date": "2024-01-01",
       "constituents": [
-        {
-          "ticker": "MSFT",
-          "name": "Microsoft Corporation",
-          "weight": 0.220000,
-          "sector": "Software - Infrastructure"
-        },
-        {
-          "ticker": "AAPL",
-          "name": "Apple Inc.",
-          "weight": 0.210000,
-          "sector": "Consumer Electronics"
-        },
-        {
-          "ticker": "NVDA",
-          "name": "NVIDIA Corporation",
-          "weight": 0.190000,
-          "sector": "Semiconductors"
-        },
-        {
-          "ticker": "AVGO",
-          "name": "Broadcom Inc.",
-          "weight": 0.080000,
-          "sector": "Semiconductors"
-        },
-        {
-          "ticker": "ORCL",
-          "name": "Oracle Corporation",
-          "weight": 0.060000,
-          "sector": "Software - Infrastructure"
-        },
-        {
-          "ticker": "CRM",
-          "name": "Salesforce, Inc.",
-          "weight": 0.060000,
-          "sector": "Software - Application"
-        },
-        {
-          "ticker": "AMD",
-          "name": "Advanced Micro Devices, Inc.",
-          "weight": 0.050000,
-          "sector": "Semiconductors"
-        },
-        {
-          "ticker": "ADBE",
-          "name": "Adobe Inc.",
-          "weight": 0.045000,
-          "sector": "Software - Infrastructure"
-        },
-        {
-          "ticker": "CSCO",
-          "name": "Cisco Systems, Inc.",
-          "weight": 0.045000,
-          "sector": "Communication Equipment"
-        },
-        {
-          "ticker": "INTC",
-          "name": "Intel Corporation",
-          "weight": 0.040000,
-          "sector": "Semiconductors"
-        }
+        { "ticker": "MSFT", "name": "Microsoft Corporation", "currency": "USD", "weight": 0.220000, "sector": "Software - Infrastructure" },
+        { "ticker": "AAPL", "name": "Apple Inc.", "currency": "USD", "weight": 0.210000, "sector": "Consumer Electronics" },
+        { "ticker": "NVDA", "name": "NVIDIA Corporation", "currency": "USD", "weight": 0.190000, "sector": "Semiconductors" },
+        { "ticker": "AVGO", "name": "Broadcom Inc.", "currency": "USD", "weight": 0.080000, "sector": "Semiconductors" },
+        { "ticker": "ORCL", "name": "Oracle Corporation", "currency": "USD", "weight": 0.060000, "sector": "Software - Infrastructure" },
+        { "ticker": "CRM", "name": "Salesforce, Inc.", "currency": "USD", "weight": 0.060000, "sector": "Software - Application" },
+        { "ticker": "AMD", "name": "Advanced Micro Devices, Inc.", "currency": "USD", "weight": 0.050000, "sector": "Semiconductors" },
+        { "ticker": "ADBE", "name": "Adobe Inc.", "currency": "USD", "weight": 0.045000, "sector": "Software - Infrastructure" },
+        { "ticker": "CSCO", "name": "Cisco Systems, Inc.", "currency": "USD", "weight": 0.045000, "sector": "Communication Equipment" },
+        { "ticker": "INTC", "name": "Intel Corporation", "currency": "USD", "weight": 0.040000, "sector": "Semiconductors" }
+      ]
+    },
+    {
+      "ticker": "EEM",
+      "name": "iShares MSCI Emerging Markets ETF",
+      "asset_class": "ETF",
+      "currency": "USD",
+      "sector": "Broad Emerging Markets",
+      "effective_date": "2024-01-01",
+      "constituents": [
+        { "ticker": "2330.TW", "name": "Taiwan Semiconductor Manufacturing Co.", "currency": "TWD", "weight": 0.350000, "sector": "Semiconductors" },
+        { "ticker": "0700.HK", "name": "Tencent Holdings Limited", "currency": "HKD", "weight": 0.250000, "sector": "Internet & Content" },
+        { "ticker": "005930.KS", "name": "Samsung Electronics Co., Ltd.", "currency": "KRW", "weight": 0.200000, "sector": "Consumer Electronics" },
+        { "ticker": "9988.HK", "name": "Alibaba Group Holding Limited", "currency": "HKD", "weight": 0.120000, "sector": "E-Commerce" },
+        { "ticker": "RELIANCE.NS", "name": "Reliance Industries Limited", "currency": "INR", "weight": 0.080000, "sector": "Energy & Conglomerate" }
       ]
     }
   ]

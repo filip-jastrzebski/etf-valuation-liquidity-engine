@@ -28,9 +28,28 @@ class IngestionEngine:
 
     def sync_dimensions(self) -> None:
         """Seed dim_security and dim_etf_basket based on basket configuration."""
+        currencies = self.config_data.get("currencies", [])
         etfs = self.config_data.get("etfs", [])
 
         with self.engine.begin() as conn:
+            for fx in currencies:
+                conn.execute(
+                    text(
+                        """
+                        INSERT INTO dim_security (ticker, security_name, asset_class, currency, sector)
+                        VALUES (:ticker, :name, 'CURRENCY', :currency, 'Foreign Exchange')
+                        ON CONFLICT (ticker) DO UPDATE SET
+                            security_name = EXCLUDED.security_name,
+                            currency = EXCLUDED.currency;
+                        """
+                    ),
+                    {
+                        "ticker": fx["ticker"],
+                        "name": fx.get("name", fx["ticker"]),
+                        "currency": fx.get("quote_currency", "USD"),
+                    },
+                )
+
             for etf in etfs:
                 # 1. Validate basket configuration
                 basket_issues = BasketValidator.validate_basket(etf)
@@ -73,7 +92,7 @@ class IngestionEngine:
                         text(
                             """
                             INSERT INTO dim_security (ticker, security_name, asset_class, currency, sector)
-                            VALUES (:ticker, :name, 'EQUITY', 'USD', :sector)
+                            VALUES (:ticker, :name, 'EQUITY', :currency, :sector)
                             ON CONFLICT (ticker) DO UPDATE SET
                                 security_name = EXCLUDED.security_name,
                                 sector = EXCLUDED.sector;
@@ -82,13 +101,15 @@ class IngestionEngine:
                         {
                             "ticker": comp_ticker,
                             "name": c.get("name", comp_ticker),
+                            "currency": c.get("currency", "USD"),
                             "sector": c.get("sector"),
                         },
                     )
 
                     comp_id = conn.execute(
                         text("SELECT security_id FROM dim_security WHERE ticker = :ticker"),
-                        {"ticker": comp_ticker}
+                        {"ticker": comp_ticker,
+                         "currency": c.get("currency", "USD"),}
                     ).scalar_one()
 
                     conn.execute(
@@ -160,6 +181,8 @@ class IngestionEngine:
 
         # Gather all distinct tickers (ETFs + constituens)
         all_tickers: Set[str] = set()
+        for fx in self.config_data.get("currencies", []):
+            all_tickers.add(fx["ticker"])
         for etf in self.config_data.get("etfs", []):
             all_tickers.add(etf["ticker"])
             for c in etf.get("constituents", []):
@@ -194,6 +217,11 @@ class IngestionEngine:
                     dt = pd.to_datetime(ts)
                     date_id = self._ensure_date_dim(conn, dt)
 
+                    if pd.isna(row.get("Close")) or pd.isna(row.get("Open")):
+                        continue
+
+                    vol = int(row["Volume"]) if not pd.isna(row.get("Volume")) else 0
+
                     row_dict = {
                         "ticker": ticker,
                         "date": dt.strftime("%Y-%m-%d"),
@@ -201,7 +229,7 @@ class IngestionEngine:
                         "high": row.get("High"),
                         "low": row.get("Low"),
                         "close": row.get("Close"),
-                        "volume": row.get("Volume"),
+                        "volume": vol,
                     }
 
                     issues = MarketDataValidator.validate_price_row(row_dict, source_feed="yfinance")
@@ -230,7 +258,7 @@ class IngestionEngine:
                             "high": round(float(row["High"]), 4),
                             "low": round(float(row["Low"]), 4),
                             "close": round(float(row["Close"]), 4),
-                            "vol": int(row["Volume"]),
+                            "vol": vol,
                         },
                     )
 

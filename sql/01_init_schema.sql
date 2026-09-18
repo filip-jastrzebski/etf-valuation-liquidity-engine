@@ -34,7 +34,7 @@ CREATE TABLE dim_date (
 -- Financial instruments dimension (shares and ETFs)
 CREATE TABLE dim_security (
     security_id SERIAL PRIMARY KEY,
-    ticker VARCHAR(10) NOT NULL UNIQUE,
+    ticker VARCHAR(20) NOT NULL UNIQUE,
     security_name VARCHAR(150) NOT NULL,
     asset_class VARCHAR(50) NOT NULL,
     currency VARCHAR(3) NOT NULL DEFAULT 'USD' CHECK (LENGTH(currency) = 3),
