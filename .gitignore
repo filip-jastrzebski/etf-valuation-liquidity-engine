@@ -1,0 +1,31 @@
+# Środowisko Pythona
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dane konfiguracyjne i sekrety
+.env
+*.env.local
+
+# Testy i lintery
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# Narzędzia systemowe / IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Docker volumes / bazy lokalne
+pgdata/
+*.db
+*.sqlite3
+
+# Pliki tymczasowe Power BI
+*.tmp

@@ -1,0 +1,1 @@
+"""Odpowiada za fizyczny zapis danych do PostgreSQL (nawiązanie sesji przez SQLAlchemy, obsługa bulk insert / upsert)."""

@@ -1,0 +1,1 @@
+# Gotowe dane do szybkiego startu
