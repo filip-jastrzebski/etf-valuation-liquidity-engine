@@ -238,8 +238,8 @@ if __name__ == "__main__":
     engine = get_engine()
     cfg = Path("config/basket_definitions.json")
     ingestor = IngestionEngine(engine=engine, config_path=cfg)
-    print("Starting ingestion pipeline...")
+    print("Starting market data ingestion pipeline...")
     ingestor.ingest_market_prices(period="1mo")
-    print("Ingestion complete")
+    print("market data ingestion complete")
 
 

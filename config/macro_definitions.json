@@ -1,0 +1,14 @@
+{
+  "benchmarks": [
+    {
+      "ticker": "^IRX",
+      "benchmark": "3M_TREASURY",
+      "description": "US Treasury 13-Week Bill Yield"
+    },
+    {
+      "ticker": "^TNX",
+      "benchmark": "10Y_TREASURY",
+      "description": "US Treasury 10-Year Note Yield"
+    }
+  ]
+}
