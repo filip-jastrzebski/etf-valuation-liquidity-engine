@@ -4,6 +4,7 @@ from datetime import datetime
 from unittest.mock import MagicMock
 import pytest
 from src.ingestion.market_data import IngestionEngine
+from src.ingestion.macro_data import MacroDataIngestion
 from src.quality.validators import ValidationIssue
 
 
@@ -70,4 +71,42 @@ class TestIngestionLogic:
         assert '"ticker": "AAPL"' in params["payload"]
 
 
-        
+class TestMacroDataIngestion:
+
+    @pytest.fixture
+    def mock_macro_instance(self, tmp_path):
+        """Creates MacroDataIngestion with mock config and mock DB engine."""
+        dummy_macro_cfg = tmp_path / "dummy_macro.json"
+        dummy_macro_cfg.write_text(
+            """
+            {
+              "benchmarks": [
+                {"ticker": "^TNX", "benchmark": "10Y_TREASURY"}
+              ]
+            }
+            """,
+            encoding="utf-8",
+        )
+        mock_db_engine = MagicMock()
+        return MacroDataIngestion(engine=mock_db_engine, config_path=dummy_macro_cfg)
+
+    def test_load_macro_config(self, mock_macro_instance):
+        """Verify configuration loader correctly parses benchmarks."""
+        benchmarks = mock_macro_instance.config_data.get("benchmarks", [])
+        assert len(benchmarks) == 1
+        assert benchmarks[0]["ticker"] == "^TNX"
+        assert benchmarks[0]["benchmark"] == "10Y_TREASURY"
+
+    def test_ensure_date_dim_macro(self, mock_macro_instance):
+        """Verify date dimension generation helper in macro ingestion."""
+        dt = datetime(2026, 9, 18)
+        mock_conn = MagicMock()
+
+        date_id = mock_macro_instance._ensure_date_dim(mock_conn, dt)
+
+        assert date_id == 20260918
+        mock_conn.execute.assert_called_once()
+        params = mock_conn.execute.call_args[0][1]
+        assert params["date_id"] == 20260918
+        assert params["is_trading_day"] is True
+
