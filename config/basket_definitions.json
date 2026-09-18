@@ -1,0 +1,144 @@
+{
+  "etfs": [
+    {
+      "ticker": "XLF",
+      "name": "Financial Select Sector SPDR Fund",
+      "asset_class": "ETF",
+      "currency": "USD",
+      "sector": "Financials",
+      "effective_date": "2024-01-01",
+      "constituents": [
+        {
+          "ticker": "BRK-B",
+          "name": "Berkshire Hathaway Inc. Class B",
+          "weight": 0.155000,
+          "sector": "Financial Services"
+        },
+        {
+          "ticker": "JPM",
+          "name": "JPMorgan Chase & Co.",
+          "weight": 0.135000,
+          "sector": "Banks - Diversified"
+        },
+        {
+          "ticker": "V",
+          "name": "Visa Inc. Class A",
+          "weight": 0.110000,
+          "sector": "Credit Services"
+        },
+        {
+          "ticker": "MA",
+          "name": "Mastercard Incorporated Class A",
+          "weight": 0.095000,
+          "sector": "Credit Services"
+        },
+        {
+          "ticker": "BAC",
+          "name": "Bank of America Corporation",
+          "weight": 0.090000,
+          "sector": "Banks - Diversified"
+        },
+        {
+          "ticker": "WFC",
+          "name": "Wells Fargo & Company",
+          "weight": 0.085000,
+          "sector": "Banks - Diversified"
+        },
+        {
+          "ticker": "GS",
+          "name": "The Goldman Sachs Group, Inc.",
+          "weight": 0.085000,
+          "sector": "Capital Markets"
+        },
+        {
+          "ticker": "MS",
+          "name": "Morgan Stanley",
+          "weight": 0.085000,
+          "sector": "Capital Markets"
+        },
+        {
+          "ticker": "SPGI",
+          "name": "S&P Global Inc.",
+          "weight": 0.080000,
+          "sector": "Financial Data & Analytics"
+        },
+        {
+          "ticker": "PGR",
+          "name": "The Progressive Corporation",
+          "weight": 0.080000,
+          "sector": "Insurance - Property & Casualty"
+        }
+      ]
+    },
+    {
+      "ticker": "XLK",
+      "name": "Technology Select Sector SPDR Fund",
+      "asset_class": "ETF",
+      "currency": "USD",
+      "sector": "Technology",
+      "effective_date": "2024-01-01",
+      "constituents": [
+        {
+          "ticker": "MSFT",
+          "name": "Microsoft Corporation",
+          "weight": 0.220000,
+          "sector": "Software - Infrastructure"
+        },
+        {
+          "ticker": "AAPL",
+          "name": "Apple Inc.",
+          "weight": 0.210000,
+          "sector": "Consumer Electronics"
+        },
+        {
+          "ticker": "NVDA",
+          "name": "NVIDIA Corporation",
+          "weight": 0.190000,
+          "sector": "Semiconductors"
+        },
+        {
+          "ticker": "AVGO",
+          "name": "Broadcom Inc.",
+          "weight": 0.080000,
+          "sector": "Semiconductors"
+        },
+        {
+          "ticker": "ORCL",
+          "name": "Oracle Corporation",
+          "weight": 0.060000,
+          "sector": "Software - Infrastructure"
+        },
+        {
+          "ticker": "CRM",
+          "name": "Salesforce, Inc.",
+          "weight": 0.060000,
+          "sector": "Software - Application"
+        },
+        {
+          "ticker": "AMD",
+          "name": "Advanced Micro Devices, Inc.",
+          "weight": 0.050000,
+          "sector": "Semiconductors"
+        },
+        {
+          "ticker": "ADBE",
+          "name": "Adobe Inc.",
+          "weight": 0.045000,
+          "sector": "Software - Infrastructure"
+        },
+        {
+          "ticker": "CSCO",
+          "name": "Cisco Systems, Inc.",
+          "weight": 0.045000,
+          "sector": "Communication Equipment"
+        },
+        {
+          "ticker": "INTC",
+          "name": "Intel Corporation",
+          "weight": 0.040000,
+          "sector": "Semiconductors"
+        }
+      ]
+    }
+  ]
+}
