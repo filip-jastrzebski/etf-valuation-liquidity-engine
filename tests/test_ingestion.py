@@ -3,9 +3,10 @@
 from datetime import datetime
 from unittest.mock import MagicMock
 import pytest
+import pandas as pd
 from src.ingestion.market_data import IngestionEngine
 from src.ingestion.macro_data import MacroDataIngestion
-from src.quality.validators import ValidationIssue
+from src.quality.validators import ValidationIssue, MarketDataValidator
 
 
 class TestIngestionLogic:
@@ -109,4 +110,106 @@ class TestMacroDataIngestion:
         params = mock_conn.execute.call_args[0][1]
         assert params["date_id"] == 20260918
         assert params["is_trading_day"] is True
+
+
+class TestMultiCurrencyIngestion:
+
+    @pytest.fixture
+    def mock_multicurrency_engine(self, tmp_path):
+        """Config fixture containing both ETF and FX currencies."""
+        dummy_cfg = tmp_path / "dummy_multicurrency.json"
+        dummy_cfg.write_text(
+            """
+            {
+              "currencies": [
+                {
+                  "ticker": "TWD=X",
+                  "name": "USD/TWD",
+                  "base_currency": "USD",
+                  "quote_currency": "TWD"
+                }
+              ],
+              "etfs": [
+                {
+                  "ticker": "EEM",
+                  "name": "iShares MSCI Emerging Markets ETF",
+                  "asset_class": "ETF",
+                  "currency": "USD",
+                  "sector": "Broad Emerging Markets",
+                  "effective_date": "2024-01-01",
+                  "constituents": [
+                    {
+                      "ticker": "2330.TW",
+                      "name": "TSMC",
+                      "currency": "TWD",
+                      "weight": 1.0,
+                      "sector": "Semiconductors"
+                    }
+                  ]
+                }
+              ]
+            }
+            """,
+            encoding="utf-8",
+        )
+        mock_db = MagicMock()
+        return IngestionEngine(engine=mock_db, config_path=dummy_cfg)
+
+    def test_ohlc_inconsistency_quarantine(self):
+        """Ensure OHLC hierarchy violations (like the KRW=X bad tick) are caught."""
+        bad_fx_row = {
+            "ticker": "KRW=X",
+            "date": "2026-08-19",
+            "open": 1412.10,
+            "high": 1412.48,  # High lower than Close
+            "low": 1384.13,
+            "close": 1413.57,
+            "volume": 0,
+        }
+        issues = MarketDataValidator.validate_price_row(
+            bad_fx_row, source_feed="yfinance"
+        )
+        assert len(issues) == 1
+        assert issues[0].error_code == "ERR_OHLC_INCONSISTENCY"
+
+    def test_fx_zero_volume_handling(self):
+        """Ensure volume=0 is valid for currencies and passes validation."""
+        valid_fx_row = {
+            "ticker": "TWD=X",
+            "date": "2026-09-18",
+            "open": 31.75,
+            "high": 31.85,
+            "low": 31.65,
+            "close": 31.76,
+            "volume": 0,
+        }
+        issues = MarketDataValidator.validate_price_row(
+            valid_fx_row, source_feed="yfinance"
+        )
+        assert len(issues) == 0
+
+    def test_sync_dimensions_handles_currencies(self, mock_multicurrency_engine):
+        """Ensure sync_dimensions seeds dim_security with currency instruments."""
+        mock_conn = MagicMock()
+        # Mock scalar_one for security_id lookups
+        mock_conn.execute.return_value.scalar_one.side_effect = [101, 202]
+
+        mock_multicurrency_engine.engine.begin.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_multicurrency_engine.sync_dimensions()
+
+        # Check that executed calls include insertion for TWD=X
+        calls = mock_conn.execute.call_args_list
+        fx_insert_called = any(
+            call.args[1].get("ticker") == "TWD=X"
+            and call.args[1].get("currency") == "TWD"
+            for call in calls
+            if len(call.args) > 1 and isinstance(call.args[1], dict)
+        )
+        assert fx_insert_called
+
+
+
+
 
