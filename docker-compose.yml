@@ -1,0 +1,38 @@
+services:
+  # Usługa 1: Baza danych PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: navguard_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-navguard_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-navguard_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Usługa 2: Pipeline Pythona (ETL & Pricing Engine)
+  pipeline:
+    build: .
+    container_name: navguard_pipeline
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./tests:/app/tests
+
+volumes:
+  pgdata:
+    driver: local

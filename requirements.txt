@@ -1,0 +1,19 @@
+# Pobieranie danych
+yfinance>=0.2.36
+requests>=2.31.0
+
+# Przetwarzanie danych
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Baza danych & ORM
+SQLAlchemy>=2.0.25
+psycopg2-binary>=2.9.9
+
+# Konfiguracja & Środowisko
+python-dotenv>=1.0.1
+pydantic>=2.6.0
+
+# Testy i jakość kodu
+pytest>=8.0.0
+ruff>=0.2.1
