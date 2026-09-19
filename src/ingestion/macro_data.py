@@ -110,5 +110,5 @@ if __name__ == "__main__":
     cfg = Path("config/macro_definitions.json")
     ingestor = MacroDataIngestion(engine=engine, config_path=cfg)
     print("Starting macro data ingestion from pipeline...")
-    ingestor.ingest_macro_rates(period="1mo")
+    ingestor.ingest_macro_rates(period="1y")
     print("Macro data ingestion complete.")

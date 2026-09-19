@@ -140,8 +140,15 @@ class MarketDataValidator:
                 )
             )
 
-        # High/Low login: High must be highest, Low lowest
-        if high_p < low_p or high_p < open_p or high_p < close_p or low_p > open_p or low_p > close_p:
+        # High/Low logic: High must be highest, Low - lowest 
+        epsilon = 0.0001
+        if (
+            high_p < (low_p - epsilon)
+            or high_p < (open_p - epsilon)
+            or high_p < (close_p - epsilon)
+            or low_p > (open_p + epsilon)
+            or low_p > (close_p + epsilon)
+        ):
             issues.append(
                 ValidationIssue(
                     source_feed=source_feed,

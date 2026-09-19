@@ -100,27 +100,28 @@ class SyntheticNAVEngine:
                 print(f"No holding data found for ETF {etf_ticker}")
                 return []
 
-            # Grouping holdings by date_id
-            dates_data: Dict[int, List[Dict]] = {}
-            for h in raw_holdings:
-                d_id = h["date_id"]
-                dates_data.setdefault(d_id, []).append(h)
+            # Budowa macierzy wyceny komponentów z uzupełnieniem dni wolnych (forward-fill)
+            df_holdings = pd.DataFrame(raw_holdings)
+            df_holdings["fx_rate"] = df_holdings["fx_rate"].fillna(1.0).astype(float)
+            df_holdings["comp_close"] = df_holdings["comp_close"].astype(float)
+            df_holdings["weight"] = df_holdings["weight"].astype(float)
+            df_holdings["usd_val"] = df_holdings["weight"] * (df_holdings["comp_close"] / df_holdings["fx_rate"])
 
-            sorted_dates = sorted([d for d in dates_data.keys() if d in etf_price_map])
+            sorted_dates = sorted([int(d) for d in df_holdings["date_id"].unique() if int(d) in etf_price_map])
             if not sorted_dates:
                 print(f"No overlapping dates between ETF and components for {etf_ticker}.")
                 return []
 
+            # Pivot: wiersze to daty, kolumny to spółki
+            # ffill uzupełnia brakujące wyceny z lokalnych świąt ostatnią znaną ceną
+            pivot_vals = df_holdings.pivot(index="date_id", columns="comp_ticker", values="usd_val")
+            pivot_vals = pivot_vals.reindex(sorted_dates).ffill().bfill()
+            daily_basket_val = pivot_vals.sum(axis=1)
+
             # 4. Determination of the Divisor on the base date t_0
             t0_date = sorted_dates[0]
             t0_etf_price = etf_price_map[t0_date]
-            t0_raw_index = Decimal("0.0")
-
-            for h in dates_data[t0_date]:
-                w = Decimal(str(h["weight"]))
-                c_price = Decimal(str(h["comp_close"]))
-                fx = Decimal(str(h["fx_rate"])) if Decimal(str(h["fx_rate"])) > 0 else Decimal("1.0")
-                t0_raw_index += w * (c_price / fx)
+            t0_raw_index = Decimal(str(daily_basket_val.loc[t0_date]))
 
             divisor = t0_raw_index / t0_etf_price
             print(f"[{etf_ticker}] Inception Date: {t0_date} | Base Index: {t0_raw_index:.4f} | Divisor: {divisor:.6f}")
@@ -129,13 +130,7 @@ class SyntheticNAVEngine:
             temp_calc = []
             for date_id in sorted_dates:
                 etf_mkt_price = etf_price_map[date_id]
-                raw_portfolio_value = Decimal("0.0")
-
-                for h in dates_data[date_id]:
-                    w = Decimal(str(h["weight"]))
-                    c_price = Decimal(str(h["comp_close"]))
-                    fx = Decimal(str(h["fx_rate"])) if Decimal(str(h["fx_rate"])) > 0 else Decimal("1.0")
-                    raw_portfolio_value += w * (c_price / fx)
+                raw_portfolio_value = Decimal(str(daily_basket_val.loc[date_id]))
 
                 synthetic_nav = round((raw_portfolio_value / divisor) + cash, 4)
                 nav_spread = round(etf_mkt_price - synthetic_nav, 4)
@@ -156,7 +151,7 @@ class SyntheticNAVEngine:
             # 6. Second loop: anomaly calculation
             mean_bps = 0.0
             std_bps = 1.0
-            
+
             if use_dynamic_zscore and len(temp_calc) > 1:
                 bps_values = [float(r["discrepancy_bps"]) for r in temp_calc]
                 mean_bps = sum(bps_values) / len(bps_values)
@@ -167,16 +162,15 @@ class SyntheticNAVEngine:
             results = []
             for item in temp_calc:
                 d_bps = float(item["discrepancy_bps"])
-                current_date = item["date_id"]
+                current_date = int(item["date_id"])
 
-                if current_date == t0_date:
+                if current_date == int(t0_date):
                     is_anomaly = False
                 elif use_dynamic_zscore and len(temp_calc) > 1:
                     z_score = abs(d_bps - mean_bps) / std_bps
                     is_anomaly = bool((z_score >= z_threshold) and (abs(d_bps) >= min_anomaly_bps))
                 else:
                     is_anomaly = bool(abs(d_bps) >= float(threshold))
-
 
                 # 7. Save to fact_synthetic_nav
                 conn.execute(
@@ -194,8 +188,8 @@ class SyntheticNAVEngine:
                         """
                     ),
                     {
-                        "etf_id": etf_id,
-                        "date_id": item["date_id"],
+                        "etf_id": int(etf_id),
+                        "date_id": int(current_date),
                         "mkt_price": item["etf_market_price"],
                         "inav": item["synthetic_nav"],
                         "spread": item["nav_spread"],
@@ -205,7 +199,7 @@ class SyntheticNAVEngine:
                 )
 
                 results.append({
-                    "date_id": item["date_id"],
+                    "date_id": int(current_date),
                     "etf_market_price": float(item["etf_market_price"]),
                     "synthetic_nav": float(item["synthetic_nav"]),
                     "nav_spread": float(item["nav_spread"]),
@@ -222,7 +216,13 @@ if __name__ == "__main__":
     db_engine = get_engine()
     engine = SyntheticNAVEngine(engine=db_engine)
 
-    # Uruchamiamy z dynamicznym progiem 2 sigma (|Z| >= 2.0)
-    for ticker in ["XLF", "XLK", "EEM"]:
+    # Pobieramy automatycznie wszystkie ETF-y z dim_security
+    with db_engine.connect() as conn:
+        etfs = conn.execute(
+            text("SELECT ticker FROM dim_security WHERE asset_class = 'ETF' ORDER BY ticker")
+        ).scalars().all()
+
+    print(f"Starting synthetic NAV calculation for: {etfs}")
+    for ticker in etfs:
         print(f"\n--- Running valuation for {ticker} ---")
         engine.calculate_nav_for_etf(etf_ticker=ticker, use_dynamic_zscore=True, z_threshold=2.0)
