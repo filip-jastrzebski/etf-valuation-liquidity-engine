@@ -2,6 +2,7 @@
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 from src.db.connection import get_engine
 
 
@@ -11,8 +12,17 @@ def pg_isolated_schema():
     engine = get_engine()
     schema_name = "test_analytics_sandbox"
 
+    # Sanity check: Check if Postgres is responding; if not, skip the test.
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1;"))
+    except OperationalError:
+        pytest.skip(
+            "PostgreSQL is not running on localhost:5432. Skipping integration tests."
+        )
+
     with engine.begin() as conn:
-        # 1. Creating an isolated schema and switch the search_path conn.execute(text(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE;"))
+        conn.execute(text(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE;"))
         conn.execute(text(f"CREATE SCHEMA {schema_name};"))
         conn.execute(text(f"SET search_path TO {schema_name};"))
 
