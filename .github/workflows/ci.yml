@@ -15,7 +15,7 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgrespassword  # dopasuj do swojego .env / connection.py
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: navguard_db
         ports:
           - 5432:5432
@@ -46,6 +46,6 @@ jobs:
           DB_PORT: 5432
           DB_NAME: navguard_db
           DB_USER: postgres
-          DB_PASSWORD: postgrespassword
+          DB_PASSWORD: postgres
         run: |
           pytest tests/ -v

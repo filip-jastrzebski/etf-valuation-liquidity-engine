@@ -1,1 +1,0 @@
-"""Proste funkcje pomocnicze przygotowujące stopy zwrotu (Log Returns, Simple Returns) pod dalszą analitykę."""
