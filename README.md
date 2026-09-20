@@ -80,7 +80,7 @@ Where $\text{FX}_{i,t} = 1.0$ for US equities and equals the exchange rate (e.g.
 
 ### 2.2. Divisor Normalization
 
-To prevent scale distortions between the aggregate nominal constituent prices and the individual ETF share price, the engine calibrates a baseline Divisor ($D$) on inception date $t_0$:
+To prevent scale distortions between the aggregate nominal constituent prices and the individual ETF share price, the engine calibrates a **baseline Divisor ($D$)** on inception date $t_0$:
 
 $$D = \frac{\text{Basket Value}_{t_0}}{P_{\text{ETF}, t_0}}$$
 
@@ -90,7 +90,7 @@ $$\text{iNAV}_t = \frac{\text{Basket Value}_t}{D} + \text{Cash Component}$$
 
 ### 2.3 Calendar Forward-Fill (Cross-Market Synchronization)
 
-Emerging market funds (such as EEM or INDA) trade on US exchanges during dates when domestic underlying exchanges (e.g., NSE in Mumbai or TWSE in Taipei) observe local holidays. To eliminate false $2000\%+$ arbitrage spikes caused by missing constituent legs, the engine pivots holdings into a date-ticker matrix and applies Last Observation Carried Forward (`ffill()`) followed by back-fill (`bfill()`), holding stale closing prices constant until local trading resumes.
+Emerging market funds (such as **EEM** or **INDA**) trade on US exchanges during dates when domestic underlying exchanges (e.g., NSE in Mumbai or TWSE in Taipei) observe local holidays. To eliminate false $2000\%+$ arbitrage spikes caused by missing constituent legs, the engine pivots holdings into a date-ticker matrix and applies Last Observation Carried Forward (`ffill()`) followed by back-fill (`bfill()`), holding stale closing prices constant until local trading resumes.
 
 ### 2.4 Arbitrage Discrepancy & Anomaly Detection
 
@@ -101,38 +101,46 @@ $$\text{Spread}_t = P_{\text{ETF}, t} - \text{iNAV}_t$$
 $$\text{Discrepancy (bps)}_t = \left( \frac{P_{\text{ETF}, t} - \text{iNAV}_t}{\text{iNAV}_t} \right) \times 10\,000$$
 
 Anomalies are flagged using both:
-1. Engine Level: Sample distribution dynamic cutoff $\vert{}Z\vert{} \ge 2.0\sigma$ with an absolute threshold minimum ($\vert{}BPS\vert{} \ge 30.0$).
-2. SQL Analytics Level: Rolling 21-session windowed Z-Score:
+1. **Engine Level:** Sample distribution dynamic cutoff $\vert{}Z\vert{} \ge 2.0\sigma$ with an absolute threshold minimum ($\vert{}BPS\vert{} \ge 30.0$).
+2. **SQL Analytics Level:** Rolling 21-session windowed Z-Score:
 
 $$Z_{t, 21} = \frac{\text{Discrepancy}_t - \mu_{t, 21}}{\sigma_{t, 21}} \ge 2.0$$
 
 ### 2.5 Risk & Market Microstructure Formulas
 
-* Tracking Difference (TD): $\text{TD}_t = R_{\text{ETF}, t} - R_{\text{iNAV}, t}$
+* **Tracking Difference (TD):**
 
-* Tracking Error (Annualized TE): $\text{TE}_{21\text{d}} = \sigma(\text{TD}_{t-20:t}) \times \sqrt{252} \times 10\,000 \quad \text{(bps)}$
+$$\text{TD}_t = R_{\text{ETF}, t} - R_{\text{iNAV}, t}$$
 
-* Amihud Illiquidity Ratio ($1M Turn):
-$$\text{ILLIQ}_t = \frac{\vert{}R_{\text{ETF}, t}\vert{} \times 1\,000\,000}{P_{\text{close}, t} \times \text{Volume}_t}$$
+* **Tracking Error (Annualized TE):**
 
-* Parametric Value at Risk ($\text{VaR}_{95\%}$): $\text{VaR}_{95\%} = -(\mu - 1.645 \cdot \sigma)$
+$$\text{TE}_{21\text{d}} = \sigma(\text{TD}_{t-20:t}) \times \sqrt{252} \times 10\,000 \quad \text{[bps]}$$
 
-* Annualized Sharpe Ratio:
+* **Amihud Illiquidity Ratio (USD 1M Turnover):**
+
+$$\text{ILLIQ}_t = \frac{|R_{\text{ETF}, t}| \times 1\,000\,000}{P_{\text{close}, t} \times \text{Volume}_t}$$
+
+* **Parametric Value at Risk ($\text{VaR}_{95\%}$):**
+
+$$\text{VaR}_{95\%} = -(\mu - 1.645 \times \sigma)$$
+
+* **Annualized Sharpe Ratio:**
+
 $$\text{Sharpe} = \frac{\overline{R}_{\text{ETF}} - \overline{R}_f}{\sigma(R_{\text{ETF}})} \times \sqrt{252}$$
 
 ## 3. Fund Accounting & Market Structure Glossary
 
-* Authorized Participant (AP): An institutional market maker or broker-dealer with the contractual right to create and redeem ETF shares directly with the fund sponsor in creation units (typically 25,000 to 100,000 shares).
+* **Authorized Participant (AP):** An institutional market maker or broker-dealer with the contractual right to create and redeem ETF shares directly with the fund sponsor in creation units (typically 25,000 to 100,000 shares).
 
-* Creation / Redemption Basket: The specific portfolio of underlying securities (and cash equivalent) that an AP must deposit to receive new ETF shares (creation) or that the AP receives in exchange for tendering ETF shares (redemption). This in-kind exchange mechanism prevents taxable capital gains within the fund structure.
+* **Creation / Redemption Basket:** The specific portfolio of underlying securities (and cash equivalent) that an AP must deposit to receive new ETF shares (creation) or that the AP receives in exchange for tendering ETF shares (redemption). This in-kind exchange mechanism prevents taxable capital gains within the fund structure.
 
-* Arbitrage Mechanism (No-Arbitrage Band):
+* **Arbitrage Mechanism (No-Arbitrage Band):**
 
-    * ETF trading at Premium ($P_{\text{ETF}} > \text{iNAV}$): APs short-sell the overvalued ETF shares on the exchange, purchase the underlying basket at market, and exchange the basket with the fund sponsor for new shares to close out the short position.
+    * **ETF trading at Premium ($P_{\text{ETF}} > \text{iNAV}$):** APs short-sell the overvalued ETF shares on the exchange, purchase the underlying basket at market, and exchange the basket with the fund sponsor for new shares to close out the short position.
     
-    * ETF trading at Discount ($P_{\text{ETF}} < \text{iNAV}$): APs buy the undervalued ETF shares on the exchange, redeem them with the fund sponsor for the underlying basket, and sell the underlying shares on the open market.
+    * **ETF trading at Discount ($P_{\text{ETF}} < \text{iNAV}$):** APs buy the undervalued ETF shares on the exchange, redeem them with the fund sponsor for the underlying basket, and sell the underlying shares on the open market.
 
-* Stale Pricing: A discrepancy between $P_{\text{ETF}}$ and $\text{iNAV}$ that occurs because constituent markets in Asia or Europe have closed while the US-listed ETF continues trading on US macro sentiment and headline news.
+* **Stale Pricing:** A discrepancy between $P_{\text{ETF}}$ and $\text{iNAV}$ that occurs because constituent markets in Asia or Europe have closed while the US-listed ETF continues trading on US macro sentiment and headline news.
 
 ## 4. Universe Coverage
 
@@ -196,7 +204,7 @@ The database strictly enforces financial data validation rules through PostgreSQ
                       └───────────────┘
 ```
 
-* fact_data_quarantine: Fully isolated table capturing rejected rows during ingestion (e.g., negative volume, inverted OHLC thresholds, or basket weights $\ne 1.0$) formatted as structured JSONB payloads with explicit error codes.
+* **fact_data_quarantine:** Fully isolated table capturing rejected rows during ingestion (e.g., negative volume, inverted OHLC thresholds, or basket weights $\ne 1.0$) formatted as structured JSONB payloads with explicit error codes.
 
 ## 6. Executive Reporting (Power BI)
 
@@ -216,7 +224,7 @@ Deep dive into $P_{\text{ETF}}$ vs $\text{iNAV}$ basis point dislocations, stati
 
 ### Page 3: Market Liquidity & Microstructure Risk
 
-Execution slippage modeling via the Amihud Illiquidity Ratio (\$1M price impact), parametric vs historical Value at Risk ($\text{VaR}_{95\%}$), and rolling tracking error regimes.
+Execution slippage modeling via the Amihud Illiquidity Ratio (USD 1M price impact), parametric vs historical Value at Risk ($\text{VaR}_{95\%}$), and rolling tracking error regimes.
 
 ![Liquidity and Risk Analytics](docs/images/03_liquidity_risk.png)
 
