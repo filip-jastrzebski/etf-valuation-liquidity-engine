@@ -120,9 +120,9 @@ $$\text{TE}_{21\text{d}} = \sigma(\text{TD}_{t-20:t}) \times \sqrt{252} \times 1
 
 $$\text{ILLIQ}_t = \frac{|R_{\text{ETF}, t}| \times 1\,000\,000}{P_{\text{close}, t} \times \text{Volume}_t}$$
 
-* **Parametric Value at Risk ($\text{VaR}_{95\%}$):**
+* **Parametric Value at Risk (VaR 95%):**
 
-$$\text{VaR}_{95\%} = -(\mu - 1.645 \times \sigma)$$
+$$\text{VaR}_{0.95} = -(\mu - 1.645 \times \sigma)$$
 
 * **Annualized Sharpe Ratio:**
 
@@ -224,7 +224,7 @@ Deep dive into $P_{\text{ETF}}$ vs $\text{iNAV}$ basis point dislocations, stati
 
 ### Page 3: Market Liquidity & Microstructure Risk
 
-Execution slippage modeling via the Amihud Illiquidity Ratio (USD 1M price impact), parametric vs historical Value at Risk ($\text{VaR}_{95\%}$), and rolling tracking error regimes.
+Execution slippage modeling via the Amihud Illiquidity Ratio (USD 1M price impact), parametric vs historical Value at Risk (VaR<sub>95%</sub>), and rolling tracking error regimes.
 
 ![Liquidity and Risk Analytics](docs/images/03_liquidity_risk.png)
 
