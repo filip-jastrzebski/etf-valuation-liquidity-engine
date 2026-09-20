@@ -62,7 +62,7 @@ def pg_isolated_schema():
         )
 
         # 3. Uploading our analytical view to an isolated schema
-        with open("sql/03_views_analytics.sql", "r", encoding="utf-8") as f:
+        with open("sql/02_views_analytics.sql", "r", encoding="utf-8") as f:
             view_sql = f.read()
             conn.execute(text(view_sql))
 
